@@ -108,6 +108,7 @@ export class GaugeComponent extends BaseChartComponent implements AfterViewInit 
   @Input() tooltipDisabled: boolean = false;
   @Input() valueFormatting: (value: any) => string;
   @Input() showText: boolean = true;
+  @Input() staticText: boolean = false;
 
   // Specify margins
   @Input() margin: number[];
@@ -266,23 +267,26 @@ export class GaugeComponent extends BaseChartComponent implements AfterViewInit 
   }
 
   getDisplayValue(): string {
-    const value = this.results.map(d => d.value).reduce((a, b) => a + b, 0);
-
-    if (this.textValue && 0 !== this.textValue.length) {
-      return this.textValue.toLocaleString();
+    if (!this.textValue) {
+      return "";
     }
-
+  
     if (this.valueFormatting) {
-      return this.valueFormatting(value);
+      return this.valueFormatting(this.textValue);
     }
 
-    return value.toLocaleString();
+    return this.textValue.toLocaleString();
   }
 
   scaleText(repeat: boolean = true): void {
     if (!this.showText) {
       return;
     }
+
+    if (this.staticText) {
+      return;
+    }
+
     const { width } = this.textEl.nativeElement.getBoundingClientRect();
     const oldScale = this.resizeScale;
 
