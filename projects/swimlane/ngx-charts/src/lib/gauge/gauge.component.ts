@@ -79,8 +79,8 @@ interface Arcs {
           [attr.transform]="textTransform"
           alignment-baseline="central"
         >
-          <tspan x="0" dy="0">{{ displayValue }}</tspan>
-          <tspan x="0" dy="1.2em">{{ units }}</tspan>
+          <tspan x="0" dy="0.3em">{{ displayValue }}</tspan>
+          <tspan x="0" dy="0.9em">{{ units }}</tspan>
         </svg:text>
       </svg:g>
     </ngx-charts-chart>
