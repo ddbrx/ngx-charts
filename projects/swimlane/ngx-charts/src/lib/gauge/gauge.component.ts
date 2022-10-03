@@ -50,7 +50,6 @@ interface Arcs {
             [isActive]="isActive(arc.valueArc.data)"
             [tooltipDisabled]="tooltipDisabled"
             [tooltipTemplate]="tooltipTemplate"
-            [valueFormatting]="valueFormatting"
             [animations]="animations"
             (select)="onClick($event)"
             (activate)="onActivate($event)"
@@ -95,7 +94,7 @@ export class GaugeComponent extends BaseChartComponent implements AfterViewInit 
   @Input() legendPosition: LegendPosition = LegendPosition.Right;
   @Input() min: number = 0;
   @Input() max: number = 100;
-  @Input() textValue: string;
+  @Input() displayValue: string;
   @Input() units: string;
   @Input() bigSegments: number = 10;
   @Input() smallSegments: number = 5;
@@ -106,9 +105,8 @@ export class GaugeComponent extends BaseChartComponent implements AfterViewInit 
   @Input() activeEntries: any[] = [];
   @Input() axisTickFormatting: any;
   @Input() tooltipDisabled: boolean = false;
-  @Input() valueFormatting: (value: any) => string;
   @Input() showText: boolean = true;
-  @Input() staticText: boolean = false;
+  @Input() useDataMinMax: boolean = true;
 
   // Specify margins
   @Input() margin: number[];
@@ -135,7 +133,6 @@ export class GaugeComponent extends BaseChartComponent implements AfterViewInit 
   textTransform: string = 'scale(1, 1)';
   cornerRadius: number = 10;
   arcs: Arcs[];
-  displayValue: string;
   legendOptions: LegendOptions;
 
   ngAfterViewInit(): void {
@@ -174,8 +171,6 @@ export class GaugeComponent extends BaseChartComponent implements AfterViewInit 
     this.domain = this.getDomain();
     this.valueDomain = this.getValueDomain();
     this.valueScale = this.getValueScale();
-    this.displayValue = this.getDisplayValue();
-
     this.outerRadius = Math.min(this.dims.width, this.dims.height) / 2;
 
     this.arcs = this.getArcs();
@@ -248,13 +243,17 @@ export class GaugeComponent extends BaseChartComponent implements AfterViewInit 
     const dataMax = Math.max(...values);
 
     if (this.min !== undefined) {
-      this.min = Math.min(this.min, dataMin);
+      if (this.useDataMinMax) {
+        this.min = Math.min(this.min, dataMin);
+      }
     } else {
       this.min = dataMin;
     }
 
     if (this.max !== undefined) {
-      this.max = Math.max(this.max, dataMax);
+      if (this.useDataMinMax) {
+        this.max = Math.max(this.max, dataMax);
+      }
     } else {
       this.max = dataMax;
     }
@@ -266,24 +265,8 @@ export class GaugeComponent extends BaseChartComponent implements AfterViewInit 
     return scaleLinear().range([0, this.angleSpan]).nice().domain(this.valueDomain);
   }
 
-  getDisplayValue(): string {
-    if (!this.textValue) {
-      return "";
-    }
-  
-    if (this.valueFormatting) {
-      return this.valueFormatting(this.textValue);
-    }
-
-    return this.textValue.toLocaleString();
-  }
-
   scaleText(repeat: boolean = true): void {
     if (!this.showText) {
-      return;
-    }
-
-    if (this.staticText) {
       return;
     }
 
